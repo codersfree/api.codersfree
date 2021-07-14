@@ -39,6 +39,10 @@
                             Clientes
                         </x-dropdown-link>
 
+                        <x-dropdown-link :href="route('tokens.index')">
+                            Api Tokens
+                        </x-dropdown-link>
+
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -81,6 +85,15 @@
             </div>
 
             <div class="mt-3 space-y-1">
+
+                <x-responsive-nav-link :href="route('clients.index')">
+                    Clientes
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('tokens.index')">
+                    Api Tokens
+                </x-responsive-nav-link>
+
                 <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
