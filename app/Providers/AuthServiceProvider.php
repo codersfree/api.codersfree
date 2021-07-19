@@ -29,5 +29,16 @@ class AuthServiceProvider extends ServiceProvider
 
         Passport::routes();
         Passport::tokensExpireIn(now()->addSecond(60));
+
+        Passport::tokensCan([
+            'create-post' => 'Crear nuevo post',
+            'read-post' => 'Leer un post', 
+            'update-post' => 'Actualizar un post', 
+            'delete-post' => 'Eliminar un post'
+        ]);
+
+        Passport::setDefaultScope([
+            'read-post'
+        ]);
     }
 }

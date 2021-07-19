@@ -79,16 +79,13 @@
                                 </td>
 
                                 <td class="flex divide-x divide-gray-300 py-2">
-                                    <a v-on:click="" class="pr-2 hover:text-green-600 font-semibold cursor-pointer">
+                                    <a v-on:click="show(token)" class="pr-2 hover:text-green-600 font-semibold cursor-pointer">
                                         Ver
                                     </a>
-
-                                    <a v-on:click="" class="px-2 hover:text-blue-600 font-semibold cursor-pointer">
-                                        Editar
-                                    </a>
+                                    
 
                                     <a class="pl-2 hover:text-red-600 font-semibold cursor-pointer"
-                                        v-on:click="">
+                                        v-on:click="revoke(token)">
                                         Eliminar
                                     </a>
                                 </td>
@@ -100,7 +97,34 @@
 
 
             </x-form-section>
+
+           
         </x-container>
+
+        <x-dialog-modal modal="showToken.open">
+            <x-slot name="title">
+                Mostrar access token
+            </x-slot>
+
+            <x-slot name="content">
+                <div class="space-y-2 overflow-auto">
+
+                    <p>
+                        <span class="font-semibold">Access Token: </span>
+                        <span v-text="showToken.id"></span>
+                    </p>
+
+                    
+                </div>
+            </x-slot>
+
+            <x-slot name="footer">
+                <button v-on:click="showToken.open = false" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50">
+                    Cancelar
+                </button>
+            </x-slot>
+
+        </x-dialog-modal>
 
     </div>
 
@@ -116,6 +140,11 @@
                         errors: [],
                         disabled: false,
                     },
+
+                    showToken: {
+                        open: false,
+                        id: ''
+                    }
                 },
 
                 mounted(){
@@ -131,6 +160,11 @@
                             });
                     },
 
+                    show(token){
+                        this.showToken.open = true;
+                        this.showToken.id = token.id;
+                    },
+
                     store(){
                         this.form.disabled = true;
                         axios.post('/oauth/personal-access-tokens', this.form)
@@ -138,11 +172,39 @@
                                 this.form.name = '';
                                 this.form.errors = [];
                                 this.form.disabled = false;
+
+                                this.getTokens();
                             })
                             .catch(error => {
                                 this.form.errors = _.flatten(_.toArray(error.response.data.errors));
                                 this.form.disabled = false;
                             })
+                    },
+
+                    revoke(token){
+                        Swal.fire({
+                            title: 'Are you sure?',
+                            text: "You won't be able to revert this!",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Yes, delete it!'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+
+                                axios.delete('/oauth/personal-access-tokens/' + token.id)
+                                    .then(response => {
+                                        this.getTokens();
+                                    });
+
+                                Swal.fire(
+                                    'Deleted!',
+                                    'Your file has been deleted.',
+                                    'success'
+                                )
+                            }
+                        })
                     }
                 },
             });
