@@ -36,11 +36,28 @@
                             </ul>
                         </div>
 
-                        <x-label>
-                            Nombre
-                        </x-label>
+                        <div>
+                            <x-label>
+                                Nombre
+                            </x-label>
 
-                        <x-input v-model="form.name" type="text" class="w-full mt-1" />
+                            <x-input v-model="form.name" type="text" class="w-full mt-1" />
+                        </div>
+
+                        <div v-if="scopes.length > 0">
+
+                            <x-label>
+                                Scopes
+                            </x-label>
+
+                            <div v-for="scope in scopes">
+                                <label>
+                                    <input type="checkbox" name="scopes" :value="scope.id" v-model="form.scopes">
+                                    @{{scope.id}}
+                                </label>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
 
@@ -50,6 +67,7 @@
                     </x-button>
                 </x-slot>
             </x-form-section>
+
 
             {{-- Mostrar Access Tokens --}}
             <x-form-section v-if="tokens.length > 0">
@@ -135,8 +153,10 @@
                 el: "#app",
                 data: {
                     tokens: [],
+                    scopes: [],
                     form: {
                         name: '',
+                        scopes: [],
                         errors: [],
                         disabled: false,
                     },
@@ -149,10 +169,18 @@
 
                 mounted(){
                     this.getTokens();
+                    this.getScopes();
                 },
 
                 methods: {
                     
+                    getScopes(){
+                        axios.get('/oauth/scopes')
+                            .then(response => {
+                                this.scopes = response.data;
+                            });
+                    },
+
                     getTokens(){
                         axios.get('/oauth/personal-access-tokens')
                             .then(response => {
@@ -171,6 +199,7 @@
                             .then(response => {
                                 this.form.name = '';
                                 this.form.errors = [];
+                                this.form.scopes = [];
                                 this.form.disabled = false;
 
                                 this.getTokens();
